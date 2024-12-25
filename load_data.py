@@ -1,7 +1,6 @@
 """
 Processes raw gesture data from CSV files.
 
-
 Functions:
     norm(arr): Normalizes the input array.
 
@@ -46,10 +45,10 @@ def norm(arr):
         return arr
     return (arr - np.mean(arr)) / np.std(arr)
 
-# 修改文件读取路径，使用data目录
+# 读取data目录下的csv文件
 for i in range(5):
     gestures = ['Thumb', 'Index', 'Middle', 'Ring', 'Little']
-    df = pd.read_csv(f'data/{gestures[i]}.csv') # 使用正确的文件路径
+    df = pd.read_csv(f'data/{gestures[i]}.csv')
 
     # 将数据转换为numpy数组
     data = df.values

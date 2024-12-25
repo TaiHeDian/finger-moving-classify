@@ -1,5 +1,6 @@
 """
 Finger Movement Classification Training and Evaluation.
+
 Description:
 1. Data preprocessing and loading
 2. Simple 1D CNN model definition
@@ -8,6 +9,7 @@ Description:
 
 Classes:
     SimpleCNN: A simple 1D convolutional neural network model
+
 Functions:
     shuffle: Randomly shuffle input data and labels
     prepare_data: Prepare training and testing data
