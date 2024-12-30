@@ -27,27 +27,21 @@ from scipy.signal import find_peaks
 
 segment_length = 3200
 window_size = 18
-samples = int(segment_length / window_size)
-statistics = np.zeros((5, 5, samples, window_size*2))
-total=5
+samples = segment_length // window_size
+statistics = np.zeros((5, 5, samples, window_size * 2))
+gestures = ['Thumb', 'Index', 'Middle', 'Ring', 'Little']
+total = 5
+
 
 def norm(arr):
-    """
-    Normalize the input array.
-
-    Args:
-        arr (numpy.ndarray): Input array to be normalized.
-
-    Returns:
-        numpy.ndarray: Normalized array.
-    """
-    if np.std(arr)==0:
+    """Normalize the input array."""
+    if np.std(arr) == 0:
         return arr
     return (arr - np.mean(arr)) / np.std(arr)
 
+
 # 读取data目录下的csv文件
-for i in range(5):
-    gestures = ['Thumb', 'Index', 'Middle', 'Ring', 'Little']
+for i, gesture in enumerate(gestures):
     df = pd.read_csv(f'data/{gestures[i]}.csv')
 
     # 将数据转换为numpy数组
@@ -55,29 +49,20 @@ for i in range(5):
     data[data < 1e-4] = 0
 
     # 根据不同手指选择不同的峰值检测列
-    if i in (0, 1, 4):  # Thumb, Index, Little
-        peaks, _ = find_peaks(data[:segment_length, 5])  # 使用第6列(Ch6)检测峰值
-    else:  # Middle, Ring
-        peaks, _ = find_peaks(data[:segment_length, 1])  # 使用第2列(Ch2)检测峰值
+    ch_idx = 5 if i in (0, 1, 4) else 1  # Thumb, Index, Little -> Ch6; Middle, Ring -> Ch2
+    peaks, _ = find_peaks(data[:segment_length, ch_idx])
 
     for k, peak in enumerate(peaks):
         start = max(0, peak - window_size)
         end = min(len(data), peak + window_size)
 
-        if end >= data.shape[0] or k >= statistics.shape[2] or end - start != window_size * 2:
-            continue
+        if end - start == window_size * 2 and k < samples:
+            # Assign data to the statistics array for all 5 channels
+            for ch in range(5):
+                statistics[i, ch, k, :] = data[start:end, ch]
 
-        # 从6个通道中选择需要的5个通道数据
-        statistics[i, 0, k, :] = data[start:end, 0]  # Ch1
-        statistics[i, 1, k, :] = data[start:end, 1]  # Ch2
-        statistics[i, 2, k, :] = data[start:end, 2]  # Ch3
-        statistics[i, 3, k, :] = data[start:end, 3]  # Ch4
-        statistics[i, 4, k, :] = data[start:end, 4]  # Ch5
-
-    statistics[i, 0, :, :] = norm(statistics[i, 0, :, :])
-    statistics[i, 1, :, :] = norm(statistics[i, 1, :, :])
-    statistics[i, 2, :, :] = norm(statistics[i, 2, :, :])
-    statistics[i, 3, :, :] = norm(statistics[i, 3, :, :])
-    statistics[i, 4, :, :] = norm(statistics[i, 4, :, :])
+    # Normalize each channel for the current gesture
+    for ch in range(5):
+        statistics[i, ch, :, :] = norm(statistics[i, ch, :, :])
 
 np.save('data.npy', statistics)

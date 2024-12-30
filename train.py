@@ -133,9 +133,7 @@ def prepare_data(num_samples, input_size, num_channels, num_classes, test_rate=0
     return inputs, labels, inputs_test, labels_test
 
 def train_model(model, criterion, optimizer, inputs, labels):
-    """
-    Train the model for one epoch.
-    """
+    """Train the model for one epoch."""
     model.train()
     optimizer.zero_grad()
 
@@ -150,9 +148,7 @@ def train_model(model, criterion, optimizer, inputs, labels):
     return loss.item()
 
 def test_model(model, inputs, labels, num_classes):
-    """
-    Test the model and print evaluation metrics.
-    """
+    """Test the model and print evaluation metrics."""
     model.eval()
 
     # 前向传播
@@ -180,7 +176,7 @@ def test_model(model, inputs, labels, num_classes):
         for j in range(5):
             cm[i, j] = cm[i, j] / sum_val * 100
 
-    plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.imshow(cm, interpolation='nearest', cmap="Blues")
     plt.colorbar()
     labels = ['Thumb', 'Index', 'Middle', 'Ring', 'Little']
     ticks = np.arange(len(labels))
